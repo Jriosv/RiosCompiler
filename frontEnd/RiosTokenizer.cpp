@@ -5,8 +5,8 @@
 using namespace std;
 
 vector<string> TOKEN_TYPES = {"KEYWORD","SYMBOL", "IDENTIFIER","INT_CONST","STRING_CONST"};
-vector<string> TOKEN_KEYWORDS = {"CLASS","METHOD", "FUNCTION","CONSTRUCTOR","INT","BOOL",
-								"CHAR","VOID","VAR","STATIC","FIELD","ASIGN","DO","IF",
+vector<string> TOKEN_KEYWORDS = {"CLASS","METHOD", "FUNCTION","CONSTRUCTOR","INT","BOOLEAN",
+								"CHAR","VOID","VAR","STATIC","FIELD","LET","DO","IF",
 								"ELSE","WHILE","RETURN","TRUE","FALSE","NULL","THIS"};
 vector<char> SYMBOLS = {'(',')','[',']','{','}',',',';','=','.','+','-','*','/','&','|','~','<','>'};
 vector<char> WHITE_SPACE = {' ','\n','\t'};
@@ -20,18 +20,24 @@ class RiosTokenizer{
 	public:
 		fstream riosFile;
 
+
 		RiosTokenizer(string argv){
-			riosFile.open(argv);
+			input_file = argv;
+			riosFile.open(input_file);
+			
 		}
 
 		string getCurrentToken();
+		void setCurrentToken(string newToken);
+		string getInputFile();
+		string changeFileName();
 		string to_upper(string word);
 		bool isInVector(string word, vector<string> words);
 		bool hasMoreTokens();
 		void advance();
 		string tokenType();
 		string keyWord();
-		char symbol();
+		string symbol();
 		string identifier();
 		int intVal();
 		string stringVal();
@@ -41,6 +47,25 @@ class RiosTokenizer{
 
 string RiosTokenizer::getCurrentToken(){
 	return current_token;
+}
+
+void RiosTokenizer::setCurrentToken(string newToken){
+	current_token = newToken;
+}
+
+string RiosTokenizer::getInputFile(){
+	return input_file;
+}
+
+string RiosTokenizer::changeFileName(){
+	string newWord = "";
+	
+	for(int i = 0; i<input_file.length(); i++){
+		if(input_file[i] == '.') break;
+		newWord= newWord + input_file[i];
+	}
+	newWord = newWord + "T.xml";	
+	return newWord;
 }
 
 string RiosTokenizer::to_upper(string word){
@@ -81,22 +106,34 @@ void RiosTokenizer::advance(){
 				while(letter != '\n'){
 					riosFile.get(letter);
 				}
-				riosFile.get(letter);
-			}else{
+			}else if(letter == '*'){
 				riosFile.get(letter);				
-				while(letter != '*'){
+				while(letter != '/'){
 					riosFile.get(letter);
 				}
 				riosFile.get(letter);
+			}else{
+				riosFile.unget();
+				riosFile.unget();
 				riosFile.get(letter);
-				riosFile.get(letter);
+				current_token = letter;
 			}
 			
 		}
 
 		//read symbols
-		if(!isalpha(letter)){	
-			current_token = letter;
+		if(!isalpha(letter) && letter != '/'){
+			if(letter == '<'){
+				current_token = "&lt;";
+			}else if(letter == '>'){
+				current_token = "&gt;";
+			}else if(letter == '"'){
+				current_token = "&quot;";
+			}else if(letter == '&'){
+				current_token = "&amp;";
+			}else{
+				current_token = letter;
+			}	
 		}
 
 		//read words
@@ -106,10 +143,6 @@ void RiosTokenizer::advance(){
 			decreaseCount = true;
 		}
 
-		if(decreaseCount){
-			current_token = newCurrent;
-			riosFile.unget();
-		}
 
 		//read numbers
 		while(isdigit(letter)){
@@ -118,8 +151,14 @@ void RiosTokenizer::advance(){
 	
 			if(!isdigit(letter)){
 				current_token = newCurrent;
+				decreaseCount = true;
 				break;
 			}			
+		}
+
+		if(decreaseCount){
+			current_token = newCurrent;
+			riosFile.unget();
 		}
 
 		//read strings
@@ -139,16 +178,16 @@ void RiosTokenizer::advance(){
 
 string RiosTokenizer::tokenType(){	
 	if(current_token[0] == '"'){
-		return "STRING_CONST";
+		return "stringConstant";
 	}else if(isdigit(current_token[0])){
-		return "INT_CONST";
+		return "integerConstant";
 	}else if(!isalpha(current_token[0])){
-		return "SYMBOL";
+		return "symbol";
 	}else if(isInVector(to_upper(current_token), TOKEN_KEYWORDS)){
-		return "KEYWORD";
+		return "keyword";
 	}else
 	{
-		return "IDENTIFIER";
+		return "identifier";
 	}
 	
 }
@@ -157,8 +196,8 @@ string RiosTokenizer::keyWord(){
 	return to_upper(current_token);
 }
 
-char RiosTokenizer::symbol(){
-	return current_token[0];
+string RiosTokenizer::symbol(){
+	return current_token;
 }
 
 string RiosTokenizer::identifier(){
@@ -180,9 +219,33 @@ string RiosTokenizer::stringVal(){
 
 int main(int argc, char* argv[]){
 		RiosTokenizer tokenizer(argv[1]);
+		
+		//name of xml file (changin .rios for T.xml)
+		string newFile = tokenizer.changeFileName();
+		cout<<newFile;
+
+		//make de xml file
+		ofstream newfile;
+		newfile.open(newFile);
+		newfile<<"<tokens>"<<endl;
+		string token;
+
 		while(!tokenizer.riosFile.eof()){
 			tokenizer.advance();
-			cout<<tokenizer.getCurrentToken()<<" -> "<<tokenizer.tokenType()<<endl;
+
+			if(tokenizer.tokenType() == "stringConstant"){
+					token = tokenizer.stringVal();
+			}else{
+				token = tokenizer.getCurrentToken();
+			}
+
+			if(tokenizer.getCurrentToken() != "\n" && !tokenizer.riosFile.eof()){
+				
+				// <tokenType> token </tokenType>
+				newfile<<"	<"<<tokenizer.tokenType()<<"> "<<token<<" </"<<tokenizer.tokenType()<<">"<<endl;
+			}
+						
 		}
+		newfile<<"</tokens>";
 		return 0;
 }
