@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include "RiosTokenizer.h"
 
 using namespace std;
 
@@ -11,39 +12,11 @@ vector<string> TOKEN_KEYWORDS = {"CLASS","METHOD", "FUNCTION","CONSTRUCTOR","INT
 vector<char> SYMBOLS = {'(',')','[',']','{','}',',',';','=','.','+','-','*','/','&','|','~','<','>'};
 vector<char> WHITE_SPACE = {' ','\n','\t'};
 
-class RiosTokenizer{
 
-	private:
-		string input_file;		
-		string current_token;
-   
-	public:
-		fstream riosFile;
-
-
-		RiosTokenizer(string argv){
-			input_file = argv;
-			riosFile.open(input_file);
-			
-		}
-
-		string getCurrentToken();
-		void setCurrentToken(string newToken);
-		string getInputFile();
-		string changeFileName();
-		string to_upper(string word);
-		bool isInVector(string word, vector<string> words);
-		bool hasMoreTokens();
-		void advance();
-		string tokenType();
-		string keyWord();
-		string symbol();
-		string identifier();
-		int intVal();
-		string stringVal();
-		
-
-};
+RiosTokenizer::RiosTokenizer(string file){
+	input_file = file;
+	riosFile.open(input_file);
+}
 
 string RiosTokenizer::getCurrentToken(){
 	return current_token;
@@ -64,7 +37,7 @@ string RiosTokenizer::changeFileName(){
 		if(input_file[i] == '.') break;
 		newWord= newWord + input_file[i];
 	}
-	newWord = newWord + "T.xml";	
+	newWord = newWord + ".xml";	
 	return newWord;
 }
 
@@ -216,7 +189,7 @@ string RiosTokenizer::stringVal(){
 	return stringValue;
 }
 
-
+/*
 int main(int argc, char* argv[]){
 		RiosTokenizer tokenizer(argv[1]);
 		
@@ -248,4 +221,4 @@ int main(int argc, char* argv[]){
 		}
 		newfile<<"</tokens>";
 		return 0;
-}
+}*/
