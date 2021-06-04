@@ -24,6 +24,14 @@
     <symbol> ; </symbol>
    </varDec>
    <statements>
+    <letStatement>
+    </letStatement>
+    <doStatement>
+    </dofStatement>
+    <doStatement>
+    </dofStatement>
+    <returnStatement>
+    </returnStatement>
    </statements>
    <symbol> } </symbol>
   </subroutineBody>
@@ -39,6 +47,20 @@
   <subroutineBody>
    <symbol> { </symbol>
    <statements>
+    <ifStatement>
+     <keyword> if </keyword>
+     <symbol> ( </symbol>
+     <expression>
+       <term>
+</term>
+     </expression>
+    </ifStatement>
+    <letStatement>
+    </letStatement>
+    <letStatement>
+    </letStatement>
+    <letStatement>
+    </letStatement>
    </statements>
    <symbol> } </symbol>
   </subroutineBody>

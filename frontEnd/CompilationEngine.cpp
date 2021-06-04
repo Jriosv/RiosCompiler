@@ -12,6 +12,16 @@ CompilationEngine::CompilationEngine(string input_file){
     output_file.open(newFile, ios::out);
 }
 
+string CompilationEngine::xmlSpace(int spaceNumber){
+    string tab = "";
+
+    for(int i = 0; i<spaceNumber;i++){
+     tab = tab + " ";
+    }
+
+    return tab;
+}
+
 void CompilationEngine::compileClass(){
         output_file <<"<class>" <<endl;
         string token;
@@ -27,8 +37,10 @@ void CompilationEngine::compileClass(){
 
             if(tokenizer->tokenType() == "keyword"){
                 if(tokenizer->keyWord() == "STATIC" || tokenizer->keyWord() == "FIELD"){
+                    *space_size_ptr = 1;
                     compileClassVarDec();
                 }else if(tokenizer->keyWord() == "CONSTRUCTOR" || tokenizer->keyWord() == "FUNCTION" || tokenizer->keyWord() == "METHOD"){
+                    *space_size_ptr = 1;
                     compileSubroutine();
                 }
             }
@@ -46,34 +58,37 @@ void CompilationEngine::compileClass(){
 }
 
 void CompilationEngine::compileClassVarDec(){
-    output_file<<" <classVarDec>"<<endl;
-    output_file<<"  "<<"<"<<tokenizer->tokenType()<<"> "<<tokenizer->getCurrentToken()<<" </"<<tokenizer->tokenType()<<">"<<endl;
+    output_file<<xmlSpace(space_size)<<"<classVarDec>"<<endl;
+    *space_size_ptr = 2;
+    output_file<<xmlSpace(space_size)<<"<"<<tokenizer->tokenType()<<"> "<<tokenizer->getCurrentToken()<<" </"<<tokenizer->tokenType()<<">"<<endl;
     tokenizer->advance();
-    output_file<<"  "<<"<"<<tokenizer->tokenType()<<"> "<<tokenizer->getCurrentToken()<<" </"<<tokenizer->tokenType()<<">"<<endl;
+    output_file<<xmlSpace(space_size)<<"<"<<tokenizer->tokenType()<<"> "<<tokenizer->getCurrentToken()<<" </"<<tokenizer->tokenType()<<">"<<endl;
     tokenizer->advance();
-    output_file<<"  "<<"<"<<tokenizer->tokenType()<<"> "<<tokenizer->getCurrentToken()<<" </"<<tokenizer->tokenType()<<">"<<endl;
+    output_file<<xmlSpace(space_size)<<"<"<<tokenizer->tokenType()<<"> "<<tokenizer->getCurrentToken()<<" </"<<tokenizer->tokenType()<<">"<<endl;
     tokenizer->advance();
-    output_file<<"  "<<"<"<<tokenizer->tokenType()<<"> "<<tokenizer->getCurrentToken()<<" </"<<tokenizer->tokenType()<<">"<<endl;
+    output_file<<xmlSpace(space_size)<<"<"<<tokenizer->tokenType()<<"> "<<tokenizer->getCurrentToken()<<" </"<<tokenizer->tokenType()<<">"<<endl;
     tokenizer->advance();
-    output_file<<" </classVarDec>"<<endl;
+    *space_size_ptr = 1;
+    output_file<<xmlSpace(space_size)<<"</classVarDec>"<<endl;
 }
 
 void CompilationEngine::compileSubroutine(){
-    output_file<<" <subroutineDec>"<<endl;
+    output_file<<xmlSpace(space_size)<<"<subroutineDec>"<<endl;
+    *space_size_ptr = 2;
     //function | method | constructor
-    output_file<<"  "<<"<"<<tokenizer->tokenType()<<"> "<<tokenizer->getCurrentToken()<<" </"<<tokenizer->tokenType()<<">"<<endl;
+    output_file<<xmlSpace(space_size)<<"<"<<tokenizer->tokenType()<<"> "<<tokenizer->getCurrentToken()<<" </"<<tokenizer->tokenType()<<">"<<endl;
     tokenizer->advance();
     //void | typw
-    output_file<<"  "<<"<"<<tokenizer->tokenType()<<"> "<<tokenizer->getCurrentToken()<<" </"<<tokenizer->tokenType()<<">"<<endl;
+    output_file<<xmlSpace(space_size)<<"<"<<tokenizer->tokenType()<<"> "<<tokenizer->getCurrentToken()<<" </"<<tokenizer->tokenType()<<">"<<endl;
     tokenizer->advance();
     //name | main | new
-    output_file<<"  "<<"<"<<tokenizer->tokenType()<<"> "<<tokenizer->getCurrentToken()<<" </"<<tokenizer->tokenType()<<">"<<endl;
+    output_file<<xmlSpace(space_size)<<"<"<<tokenizer->tokenType()<<"> "<<tokenizer->getCurrentToken()<<" </"<<tokenizer->tokenType()<<">"<<endl;
     tokenizer->advance();
     // '('
-    output_file<<"  "<<"<"<<tokenizer->tokenType()<<"> "<<tokenizer->getCurrentToken()<<" </"<<tokenizer->tokenType()<<">"<<endl;
+    output_file<<xmlSpace(space_size)<<"<"<<tokenizer->tokenType()<<"> "<<tokenizer->getCurrentToken()<<" </"<<tokenizer->tokenType()<<">"<<endl;
     compileParameterList();
     // ')'
-    output_file<<"  "<<"<"<<tokenizer->tokenType()<<"> "<<tokenizer->getCurrentToken()<<" </"<<tokenizer->tokenType()<<">"<<endl;   
+    output_file<<xmlSpace(space_size)<<"<"<<tokenizer->tokenType()<<"> "<<tokenizer->getCurrentToken()<<" </"<<tokenizer->tokenType()<<">"<<endl;   
     tokenizer->advance();
     subroutineBody();
     output_file<<" </subroutineDec>"<<endl;
@@ -81,28 +96,33 @@ void CompilationEngine::compileSubroutine(){
 }
 
 void CompilationEngine::compileParameterList(){
-    output_file<<"  "<<"<parameterList>";
+    output_file<<xmlSpace(space_size)<<"<parameterList>"<<endl;
+    *space_size_ptr = 3;
     while(tokenizer->getCurrentToken() != ")"){
         tokenizer->advance();
         if(tokenizer->getCurrentToken() != ")"){
-            output_file<<"   "<<"<"<<tokenizer->tokenType()<<"> "<<
+            output_file<<xmlSpace(space_size)<<"<"<<tokenizer->tokenType()<<"> "<<
             tokenizer->getCurrentToken()
             <<" </"<<tokenizer->tokenType()<<">"<<endl;
         }
     }
-    output_file<<"  "<<"</parameterList>"<<endl;
+    *space_size_ptr = 2;
+    output_file<<xmlSpace(space_size)<<"</parameterList>"<<endl;
 }
 
 void CompilationEngine::subroutineBody(){
-    output_file<<"  "<<"<subroutineBody>"<<endl;
-    output_file<<"   "<<"<"<<tokenizer->tokenType()<<"> "<<tokenizer->getCurrentToken()<<" </"<<tokenizer->tokenType()<<">"<<endl;
+    output_file<<xmlSpace(space_size)<<"<subroutineBody>"<<endl;
+    *space_size_ptr = 3;
+    output_file<<xmlSpace(space_size)<<"<"<<tokenizer->tokenType()<<"> "<<tokenizer->getCurrentToken()<<" </"<<tokenizer->tokenType()<<">"<<endl;
     tokenizer->advance();
     if(tokenizer->getCurrentToken() == "var"){
+        *space_size_ptr = 3;
         compileVarDec();
     }
     compileStatements();
-    output_file<<"   "<<"<"<<tokenizer->tokenType()<<"> "<<tokenizer->getCurrentToken()<<" </"<<tokenizer->tokenType()<<">"<<endl;
-    output_file<<"  "<<"</subroutineBody>"<<endl;
+    output_file<<xmlSpace(space_size)<<"<"<<tokenizer->tokenType()<<"> "<<tokenizer->getCurrentToken()<<" </"<<tokenizer->tokenType()<<">"<<endl;
+    *space_size_ptr = 2;
+    output_file<<xmlSpace(space_size)<<"</subroutineBody>"<<endl;
 }
 
 void CompilationEngine::compileVarDec(){
@@ -169,11 +189,19 @@ void CompilationEngine::compileReturn(){
 }
 
 void CompilationEngine::compileExpression(){
-    
+    output_file<<"     "<<"<expression>"<<endl;
+    compileTerm();
+    output_file<<"     "<<"</expression>"<<endl;
 }
 
 void CompilationEngine::compileTerm(){
-
+    output_file<<"       "<<"<term>"<<endl;
+    tokenizer->advance();
+    if(tokenizer->getCurrentToken() == "("){
+        output_file<<"        "<<"<"<<tokenizer->tokenType()<<"> "<<tokenizer->getCurrentToken()<<" </"<<tokenizer->tokenType()<<">"<<endl;
+        compileExpression();
+    }
+    output_file<<"</term>"<<endl;
 }
 
 void CompilationEngine::compileExpressionList(){

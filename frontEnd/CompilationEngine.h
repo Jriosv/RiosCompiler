@@ -10,9 +10,12 @@ class CompilationEngine{
         string input_file_title;
     public:
         ofstream output_file;
+        int space_size = 0;
+        int* space_size_ptr = &space_size;
 
         RiosTokenizer* tokenizer;
         CompilationEngine(string input_file);
+        string xmlSpace(int spaceNumber);
         void compileClass();
         void compileClassVarDec();
         void compileSubroutine();
